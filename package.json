@@ -1,0 +1,64 @@
+{
+  "name": "@samuel/qrcode-lib",
+  "version": "1.0.0",
+  "description": "Biblioteca TypeScript para gerar QR Codes estilizados em Node.js, Next.js e browser",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./node": {
+      "types": "./dist/node.d.ts",
+      "import": "./dist/node.js",
+      "require": "./dist/node.cjs"
+    },
+    "./browser": {
+      "types": "./dist/browser.d.ts",
+      "import": "./dist/browser.js",
+      "require": "./dist/browser.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts src/node.ts src/browser.ts --format esm,cjs --dts --clean --external canvas --external jsdom --external qr-code-styling --external qr-code-styling/lib/qr-code-styling.common.js",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm run build"
+  },
+  "keywords": [
+    "qrcode",
+    "qr-code",
+    "typescript",
+    "nextjs",
+    "node"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "qr-code-styling": "^1.9.2"
+  },
+  "peerDependencies": {
+    "canvas": "^3.0.0",
+    "jsdom": "^26.0.0"
+  },
+  "peerDependenciesMeta": {
+    "canvas": {
+      "optional": true
+    },
+    "jsdom": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsup": "^8.2.4",
+    "typescript": "^5.6.3"
+  }
+}
