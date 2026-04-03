@@ -1,152 +1,177 @@
 # qrcode-lib
 
-Biblioteca TypeScript para gerar QR Codes estilizados com os mesmos recursos do frontend original.
+Biblioteca TypeScript para geração de QR Codes estilizados em Browser, Next.js e Node.js.
 
-## Recursos
+## Funcionalidades
 
-- Tipos de conteudo: `url`, `text`, `location`, `phone`, `email`, `sms`, `bitcoin`, `paypal`, `vcard`, `whatsapp`, `wifi`, `zoom`
-- Estilo completo: tamanho, formas, cor de fundo, cor principal, cor de olho (moldura/centro), fundo transparente
-- Gradiente no corpo do QR: `linear-0`, `linear-45`, `linear-90`, `linear-135`, `radial-center`
-- Logo central e margem da logo
-- Saida em `png` e `svg`
-- API para Node.js, browser e Next.js
+- Geração de QR em `png` e `svg`
+- API para Browser (`createQrCode`) e Node (`generateQrCodeBuffer`)
+- Suporte a 12 tipos de conteúdo: `url`, `text`, `location`, `phone`, `email`, `sms`, `bitcoin`, `paypal`, `vcard`, `whatsapp`, `wifi`, `zoom`
+- Personalização completa de estilo: tamanho, formas, cores, gradiente, fundo transparente e logo central
+- Catálogo de opções em runtime via `getQRCodeOptionsCatalog()`
 
-## Instalacao
+## Requisitos
 
-```bash
-npm i @samuel/qrcode-lib qr-code-styling
-```
+- Node.js `>= 18.18.0`
 
-Para usar no Node.js (gerar Buffer):
+## Instalação
 
 ```bash
-npm i canvas jsdom
+npm install @samuel/qrcode-lib qr-code-styling
 ```
 
-## Mostrar opcoes disponiveis
+Para geração no servidor (Node):
 
-Use `getQRCodeOptionsCatalog()` antes de gerar para listar dinamicamente tudo que o usuario pode escolher.
-
-```ts
-import { getQRCodeOptionsCatalog } from "@samuel/qrcode-lib";
-
-const options = getQRCodeOptionsCatalog();
-
-console.log(options.contentTypes);
-console.log(options.dotsShapes);
-console.log(options.cornerSquareShapes);
-console.log(options.cornerDotShapes);
-console.log(options.gradientModes);
-console.log(options.outputFormats);
-console.log(options.wifiAuthTypes);
-console.log(options.limits);
+```bash
+npm install canvas jsdom
 ```
 
-## API compartilhada
+## Estrutura de imports
 
-Importe do pacote raiz para funcoes comuns:
+- API compartilhada: `@samuel/qrcode-lib`
+- Browser/Client: `@samuel/qrcode-lib/browser`
+- Node/Server: `@samuel/qrcode-lib/node`
 
-```ts
-import {
-  buildQRCodePayload,
-  getQRCodeOptionsCatalog,
-  normalizeAppearance,
-  getStylingOptions
-} from "@samuel/qrcode-lib";
-```
+## Guia rápido
 
-## Node.js / Next.js server
-
-Importe do subpath `@samuel/qrcode-lib/node`.
-
-```ts
-import { writeFileSync } from "node:fs";
-import { generateQRCodeBuffer } from "@samuel/qrcode-lib/node";
-
-const buffer = await generateQRCodeBuffer({
-  format: "png",
-  content: {
-    type: "url",
-    url: "https://exemplo.com"
-  },
-  appearance: {
-    size: 1000,
-    colors: {
-      bg: "#FFFFFF",
-      fg: "#0B0F1A",
-      eyeFrame: "#0B0F1A",
-      eyeCenter: "#0B0F1A",
-      transparent: false
-    },
-    gradient: {
-      enabled: true,
-      start: "#0B0F1A",
-      end: "#1F6FEB",
-      mode: "linear-45"
-    },
-    shapes: {
-      dots: "rounded",
-      cornerSquare: "extra-rounded",
-      cornerDot: "dot"
-    },
-    logoMargin: 6
-  }
-});
-
-writeFileSync("./qr.png", buffer);
-```
-
-## Browser / Next.js client
-
-Importe do subpath `@samuel/qrcode-lib/browser` e use apenas em Client Components.
+### Browser / Next.js Client Component
 
 ```tsx
 "use client";
 
 import { useEffect, useRef } from "react";
-import { createBrowserQRCode } from "@samuel/qrcode-lib/browser";
+import { createQrCode } from "@samuel/qrcode-lib/browser";
 
 export default function QrPreview() {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let mounted = true;
+    if (!ref.current) return;
 
     async function run() {
-      if (!ref.current) return;
-
-      const qr = await createBrowserQRCode({
-        element: ref.current,
-        content: { type: "whatsapp", phone: "5511900000000", message: "Ola" },
-        appearance: {
-          size: 800,
-          gradient: { enabled: true, mode: "radial-center", start: "#111827", end: "#2563EB" },
-          shapes: { dots: "classy-rounded", cornerSquare: "dot", cornerDot: "dot" }
+      const qr = await createQrCode({
+        element: ref.current!,
+        content: { type: "url", url: "https://example.com" },
+        style: {
+          size: 400,
+          foregroundColor: "#0B0F1A",
+          backgroundColor: "#FFFFFF",
+          shape: { body: "rounded", eyeOuter: "extra-rounded", eyeInner: "dot" },
+          gradient: { enabled: true, from: "#1F6FEB", to: "#0B0F1A", style: "radial-center" }
         }
       });
 
-      if (!mounted) return;
-
-      qr.update({
-        content: { type: "url", url: "https://meusite.com" },
-        appearance: { size: 1000 }
-      });
-
-      qr.download("meu-qr", "png");
+      qr.download("qr-code", "png");
     }
 
     run();
-
-    return () => {
-      mounted = false;
-    };
   }, []);
 
   return <div ref={ref} />;
 }
 ```
 
-## Tipos de conteudo
+### Node.js / Server
+
+```ts
+import { writeFileSync } from "node:fs";
+import { generateQrCodeBuffer } from "@samuel/qrcode-lib/node";
+
+const buffer = await generateQrCodeBuffer({
+  format: "png",
+  content: { type: "url", url: "https://example.com" },
+  style: {
+    size: 1000,
+    foregroundColor: "#0B0F1A",
+    backgroundColor: "#FFFFFF",
+    shape: { body: "rounded", eyeOuter: "extra-rounded", eyeInner: "dot" }
+  }
+});
+
+writeFileSync("./qr.png", buffer);
+```
+
+## API
+
+### `createQrCode(input)` (Browser)
+
+Alias de `createBrowserQRCode`.
+
+Parâmetros:
+
+- `element: HTMLElement` container do QR
+- `content: QRCodePayloadInput | string`
+- `style?: QRCodeStyle` formato recomendado
+- `appearance?: QRCodeAppearance` formato legado (compatível)
+
+Retorno:
+
+- `update({ content, style?, appearance? })`
+- `download(fileName?, extension?)`
+- `getRawData(extension?)`
+
+### `generateQrCodeBuffer(input)` (Node)
+
+Alias de `generateQRCodeBuffer`.
+
+Parâmetros:
+
+- `content: QRCodePayloadInput | string`
+- `format?: "png" | "svg"` (padrão: `"png"`)
+- `style?: QRCodeStyle` formato recomendado
+- `appearance?: QRCodeAppearance` formato legado (compatível)
+
+Retorno:
+
+- `Promise<Buffer>`
+
+### `buildQRCodePayload(input)`
+
+Gera a string final do payload a partir do objeto tipado.
+
+### `getQRCodeOptionsCatalog()`
+
+Retorna lista de opções suportadas:
+
+- tipos de conteúdo
+- formas do corpo e olhos
+- modos de gradiente
+- formatos de saída
+- limites de tamanho e margens padrão
+
+## Configuração de estilo
+
+### Formato recomendado: `style`
+
+```ts
+type QRCodeStyle = {
+  size?: number;
+  logoUrl?: string | null;
+  logoPadding?: number;
+  backgroundColor?: string;
+  foregroundColor?: string;
+  eyeOuterColor?: string;
+  eyeInnerColor?: string;
+  transparentBackground?: boolean;
+  gradient?: {
+    enabled?: boolean;
+    from?: string;
+    to?: string;
+    style?: "linear-0" | "linear-45" | "linear-90" | "linear-135" | "radial-center";
+  };
+  shape?: {
+    body?: "square" | "rounded" | "dots" | "classy" | "classy-rounded" | "extra-rounded";
+    eyeOuter?: "square" | "dot" | "extra-rounded";
+    eyeInner?: "square" | "dot";
+  };
+}
+```
+
+### Formato legado: `appearance` (compatibilidade)
+
+O formato antigo permanece suportado para evitar quebra de integração.
+
+## Tipos de conteúdo
 
 - `url`: `{ type: "url", url }`
 - `text`: `{ type: "text", text }`
@@ -161,35 +186,39 @@ export default function QrPreview() {
 - `wifi`: `{ type: "wifi", ssid, password, authType, hidden }`
 - `zoom`: `{ type: "zoom", url }`
 
-Todos mantem o mesmo comportamento/default do frontend legado.
+## Exemplo prático
 
-## Opcoes de estilo
+```ts
+await createQrCode({
+  element: qrContainerRef.current!,
+  content: { type: "url", url: window.location.href },
+  style: {
+    size: 400,
+    logoUrl: "/logo/logo.svg",
+    logoPadding: 6,
+    foregroundColor: "#0B0F1A",
+    backgroundColor: "#FFFFFF",
+    eyeOuterColor: "#0B0F1A",
+    eyeInnerColor: "#0B0F1A",
+    transparentBackground: false,
+    gradient: {
+      enabled: true,
+      from: "#1F6FEB",
+      to: "#0B0F1A",
+      style: "radial-center"
+    },
+    shape: {
+      body: "rounded",
+      eyeOuter: "extra-rounded",
+      eyeInner: "dot"
+    }
+  }
+});
+```
 
-`appearance` aceita:
-
-- `size`: numero entre `200` e `2000` (clamp automatico)
-- `logo`: URL/data URL da imagem
-- `logoMargin`: margem da logo
-- `colors.bg`: cor de fundo
-- `colors.fg`: cor do corpo do QR
-- `colors.eyeFrame`: cor da moldura do olho
-- `colors.eyeCenter`: cor do centro do olho
-- `colors.transparent`: fundo transparente
-- `gradient.enabled`: habilita gradiente no corpo do QR
-- `gradient.start`: cor inicial do gradiente
-- `gradient.end`: cor final do gradiente
-- `gradient.mode`: `linear-0 | linear-45 | linear-90 | linear-135 | radial-center`
-- `shapes.dots`: `square | rounded | dots | classy | classy-rounded | extra-rounded`
-- `shapes.cornerSquare`: `square | dot | extra-rounded`
-- `shapes.cornerDot`: `square | dot`
-
-## Scripts
+## Desenvolvimento
 
 ```bash
 npm run typecheck
 npm run build
 ```
-
-## Publicacao
-
-Ajuste `name`, `author` e `version` no `package.json` antes de publicar no npm.

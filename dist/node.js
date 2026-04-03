@@ -1,7 +1,7 @@
 import {
   buildQRCodePayload,
   getStylingOptions
-} from "./chunk-5KUVBYXA.js";
+} from "./chunk-BGUPRGQW.js";
 
 // src/node.ts
 async function loadNodeDeps() {
@@ -45,7 +45,7 @@ async function toBuffer(value) {
 async function generateQRCodeBuffer(input) {
   const { QRCodeStyling, nodeCanvas, JSDOM } = await loadNodeDeps();
   const payload = buildQRCodePayload(input.content);
-  const baseOptions = getStylingOptions(payload, input.appearance);
+  const baseOptions = getStylingOptions(payload, input.style ?? input.appearance);
   const qrCode = new QRCodeStyling({
     ...baseOptions,
     nodeCanvas,
@@ -53,6 +53,8 @@ async function generateQRCodeBuffer(input) {
   });
   return toBuffer(await qrCode.getRawData(input.format ?? "png"));
 }
+var generateQrCodeBuffer = generateQRCodeBuffer;
 export {
-  generateQRCodeBuffer
+  generateQRCodeBuffer,
+  generateQrCodeBuffer
 };

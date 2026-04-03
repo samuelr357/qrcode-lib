@@ -12,7 +12,7 @@ import {
   QR_CODE_WIFI_AUTH_TYPES
 } from "./constants";
 import { buildQRCodePayload } from "./payload";
-import { clampSize, getStylingOptions, normalizeAppearance } from "./style";
+import { clampSize, getStylingOptions, normalizeAppearance, toLegacyAppearance } from "./style";
 import type { QRCodeOptionsCatalog } from "./types";
 
 export function getQRCodeOptionsCatalog(): QRCodeOptionsCatalog {
@@ -37,6 +37,7 @@ export {
   buildQRCodePayload,
   clampSize,
   normalizeAppearance,
+  toLegacyAppearance,
   getStylingOptions
 };
 
@@ -45,6 +46,7 @@ export type {
   BrowserQRCodeInstance,
   GenerateQRCodeNodeInput,
   QRCodeAppearance,
+  QRCodeAppearanceInput,
   QRCodeBitcoinInput,
   QRCodeContentType,
   QRCodeCornerDotShape,
@@ -59,6 +61,7 @@ export type {
   QRCodePayPalInput,
   QRCodePhoneInput,
   QRCodeSmsInput,
+  QRCodeStyle,
   QRCodeTextInput,
   QRCodeUrlInput,
   QRCodeVCardInput,

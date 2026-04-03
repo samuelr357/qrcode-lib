@@ -46,6 +46,30 @@ export interface QRCodeAppearance {
   };
 }
 
+export interface QRCodeStyle {
+  size?: number;
+  logoUrl?: string | null;
+  logoPadding?: number;
+  backgroundColor?: string;
+  foregroundColor?: string;
+  eyeOuterColor?: string;
+  eyeInnerColor?: string;
+  transparentBackground?: boolean;
+  gradient?: {
+    enabled?: boolean;
+    from?: string;
+    to?: string;
+    style?: QRCodeGradientMode;
+  };
+  shape?: {
+    body?: QRCodeDotsShape;
+    eyeOuter?: QRCodeCornerSquareShape;
+    eyeInner?: QRCodeCornerDotShape;
+  };
+}
+
+export type QRCodeAppearanceInput = QRCodeAppearance | QRCodeStyle;
+
 export interface QRCodeUrlInput {
   type: "url";
   url?: string;
@@ -153,6 +177,7 @@ export interface QRCodeOptionsCatalog {
 export interface GenerateQRCodeNodeInput {
   content: QRCodePayloadInput | string;
   appearance?: QRCodeAppearance;
+  style?: QRCodeStyle;
   format?: QRCodeOutputFormat;
 }
 
@@ -160,10 +185,11 @@ export interface BrowserQRCodeCreateInput {
   element: HTMLElement;
   content: QRCodePayloadInput | string;
   appearance?: QRCodeAppearance;
+  style?: QRCodeStyle;
 }
 
 export interface BrowserQRCodeInstance {
-  update: (input: { content: QRCodePayloadInput | string; appearance?: QRCodeAppearance }) => void;
+  update: (input: { content: QRCodePayloadInput | string; appearance?: QRCodeAppearance; style?: QRCodeStyle }) => void;
   download: (fileName?: string, extension?: QRCodeOutputFormat) => void;
   getRawData: (extension?: QRCodeOutputFormat) => Promise<Blob | Buffer | null>;
 }

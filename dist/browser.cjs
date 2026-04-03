@@ -30,7 +30,8 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/browser.ts
 var browser_exports = {};
 __export(browser_exports, {
-  createBrowserQRCode: () => createBrowserQRCode
+  createBrowserQRCode: () => createBrowserQRCode,
+  createQrCode: () => createQrCode
 });
 module.exports = __toCommonJS(browser_exports);
 
@@ -141,6 +142,16 @@ var MAX_QR_SIZE = 2e3;
 var DEFAULT_LOGO_MARGIN = 6;
 
 // src/style.ts
+var styleKeys = [
+  "logoUrl",
+  "logoPadding",
+  "backgroundColor",
+  "foregroundColor",
+  "eyeOuterColor",
+  "eyeInnerColor",
+  "transparentBackground",
+  "shape"
+];
 var defaultAppearance = {
   size: DEFAULT_QR_SIZE,
   logo: null,
@@ -175,29 +186,58 @@ function clampSize(size) {
   if (!Number.isFinite(raw)) return DEFAULT_QR_SIZE;
   return Math.min(MAX_QR_SIZE, Math.max(MIN_QR_SIZE, Math.round(raw)));
 }
-function normalizeAppearance(appearance = {}) {
-  const gradientMode = appearance.gradient?.mode ?? defaultAppearance.gradient.mode;
+function isStyleInput(input) {
+  return styleKeys.some((key) => key in input);
+}
+function toLegacyAppearance(style = {}) {
   return {
-    size: clampSize(appearance.size),
-    logo: appearance.logo ?? defaultAppearance.logo,
-    logoMargin: Number.isFinite(appearance.logoMargin) ? Number(appearance.logoMargin) : defaultAppearance.logoMargin,
+    size: style.size,
+    logo: style.logoUrl,
+    logoMargin: style.logoPadding,
     colors: {
-      bg: appearance.colors?.bg ?? defaultAppearance.colors.bg,
-      fg: appearance.colors?.fg ?? defaultAppearance.colors.fg,
-      eyeFrame: appearance.colors?.eyeFrame ?? defaultAppearance.colors.eyeFrame,
-      eyeCenter: appearance.colors?.eyeCenter ?? defaultAppearance.colors.eyeCenter,
-      transparent: appearance.colors?.transparent ?? defaultAppearance.colors.transparent
+      bg: style.backgroundColor,
+      fg: style.foregroundColor,
+      eyeFrame: style.eyeOuterColor,
+      eyeCenter: style.eyeInnerColor,
+      transparent: style.transparentBackground
     },
     gradient: {
-      enabled: appearance.gradient?.enabled ?? defaultAppearance.gradient.enabled,
-      start: appearance.gradient?.start ?? appearance.colors?.fg ?? defaultAppearance.gradient.start,
-      end: appearance.gradient?.end ?? defaultAppearance.gradient.end,
+      enabled: style.gradient?.enabled,
+      start: style.gradient?.from,
+      end: style.gradient?.to,
+      mode: style.gradient?.style
+    },
+    shapes: {
+      dots: style.shape?.body,
+      cornerSquare: style.shape?.eyeOuter,
+      cornerDot: style.shape?.eyeInner
+    }
+  };
+}
+function normalizeAppearance(appearance = {}) {
+  const normalizedInput = isStyleInput(appearance) ? toLegacyAppearance(appearance) : appearance;
+  const gradientMode = normalizedInput.gradient?.mode ?? defaultAppearance.gradient.mode;
+  return {
+    size: clampSize(normalizedInput.size),
+    logo: normalizedInput.logo ?? defaultAppearance.logo,
+    logoMargin: Number.isFinite(normalizedInput.logoMargin) ? Number(normalizedInput.logoMargin) : defaultAppearance.logoMargin,
+    colors: {
+      bg: normalizedInput.colors?.bg ?? defaultAppearance.colors.bg,
+      fg: normalizedInput.colors?.fg ?? defaultAppearance.colors.fg,
+      eyeFrame: normalizedInput.colors?.eyeFrame ?? defaultAppearance.colors.eyeFrame,
+      eyeCenter: normalizedInput.colors?.eyeCenter ?? defaultAppearance.colors.eyeCenter,
+      transparent: normalizedInput.colors?.transparent ?? defaultAppearance.colors.transparent
+    },
+    gradient: {
+      enabled: normalizedInput.gradient?.enabled ?? defaultAppearance.gradient.enabled,
+      start: normalizedInput.gradient?.start ?? normalizedInput.colors?.fg ?? defaultAppearance.gradient.start,
+      end: normalizedInput.gradient?.end ?? defaultAppearance.gradient.end,
       mode: QR_CODE_GRADIENT_MODES.includes(gradientMode) ? gradientMode : defaultAppearance.gradient.mode
     },
     shapes: {
-      dots: appearance.shapes?.dots ?? defaultAppearance.shapes.dots,
-      cornerSquare: appearance.shapes?.cornerSquare ?? defaultAppearance.shapes.cornerSquare,
-      cornerDot: appearance.shapes?.cornerDot ?? defaultAppearance.shapes.cornerDot
+      dots: normalizedInput.shapes?.dots ?? defaultAppearance.shapes.dots,
+      cornerSquare: normalizedInput.shapes?.cornerSquare ?? defaultAppearance.shapes.cornerSquare,
+      cornerDot: normalizedInput.shapes?.cornerDot ?? defaultAppearance.shapes.cornerDot
     }
   };
 }
@@ -266,16 +306,17 @@ async function loadBrowserQRCodeStyling() {
 function resolvePayload(content) {
   return buildQRCodePayload(content);
 }
-function resolveOptions(content, appearance) {
-  return getStylingOptions(resolvePayload(content), appearance);
+function resolveOptions(content, options) {
+  const styleInput = options?.style ?? options?.appearance;
+  return getStylingOptions(resolvePayload(content), styleInput);
 }
 async function createBrowserQRCode(input) {
   const QRCodeStyling = await loadBrowserQRCodeStyling();
-  const qrCode = new QRCodeStyling(resolveOptions(input.content, input.appearance));
+  const qrCode = new QRCodeStyling(resolveOptions(input.content, { appearance: input.appearance, style: input.style }));
   qrCode.append(input.element);
   return {
-    update: ({ content, appearance }) => {
-      qrCode.update(resolveOptions(content, appearance));
+    update: ({ content, appearance, style }) => {
+      qrCode.update(resolveOptions(content, { appearance, style }));
     },
     download: (fileName = "qr-code", extension = "png") => {
       qrCode.download({ name: fileName, extension });
@@ -283,7 +324,9 @@ async function createBrowserQRCode(input) {
     getRawData: (extension = "png") => qrCode.getRawData(extension)
   };
 }
+var createQrCode = createBrowserQRCode;
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  createBrowserQRCode
+  createBrowserQRCode,
+  createQrCode
 });

@@ -1,5 +1,6 @@
-import { G as GenerateQRCodeNodeInput } from './types-DqOMAUZW.cjs';
+import { G as GenerateQRCodeNodeInput } from './types-CZ3DbJda.cjs';
 
 declare function generateQRCodeBuffer(input: GenerateQRCodeNodeInput): Promise<Buffer>;
+declare const generateQrCodeBuffer: typeof generateQRCodeBuffer;
 
-export { generateQRCodeBuffer };
+export { generateQRCodeBuffer, generateQrCodeBuffer };

@@ -1,5 +1,5 @@
-import { Q as QRCodePayloadInput, b as QRCodeAppearance, c as QRCodeGradientMode, d as QRCodeContentType, e as QRCodeCornerDotShape, f as QRCodeCornerSquareShape, g as QRCodeDotsShape, h as QRCodeOutputFormat, i as QRCodeWifiAuthType, j as QRCodeOptionsCatalog } from './types-DqOMAUZW.js';
-export { B as BrowserQRCodeCreateInput, a as BrowserQRCodeInstance, G as GenerateQRCodeNodeInput, k as QRCodeBitcoinInput, l as QRCodeEmailInput, m as QRCodeLocationInput, n as QRCodePayPalInput, o as QRCodePhoneInput, p as QRCodeSmsInput, q as QRCodeTextInput, r as QRCodeUrlInput, s as QRCodeVCardInput, t as QRCodeWhatsAppInput, u as QRCodeWifiInput, v as QRCodeZoomInput } from './types-DqOMAUZW.js';
+import { Q as QRCodePayloadInput, b as QRCodeAppearanceInput, c as QRCodeGradientMode, d as QRCodeStyle, e as QRCodeAppearance, f as QRCodeContentType, g as QRCodeCornerDotShape, h as QRCodeCornerSquareShape, i as QRCodeDotsShape, j as QRCodeOutputFormat, k as QRCodeWifiAuthType, l as QRCodeOptionsCatalog } from './types-CZ3DbJda.js';
+export { B as BrowserQRCodeCreateInput, a as BrowserQRCodeInstance, G as GenerateQRCodeNodeInput, m as QRCodeBitcoinInput, n as QRCodeEmailInput, o as QRCodeLocationInput, p as QRCodePayPalInput, q as QRCodePhoneInput, r as QRCodeSmsInput, s as QRCodeTextInput, t as QRCodeUrlInput, u as QRCodeVCardInput, v as QRCodeWhatsAppInput, w as QRCodeWifiInput, x as QRCodeZoomInput } from './types-CZ3DbJda.js';
 
 declare function buildQRCodePayload(input: QRCodePayloadInput | string): string;
 
@@ -27,8 +27,9 @@ interface ResolvedAppearance {
     };
 }
 declare function clampSize(size: number | undefined): number;
-declare function normalizeAppearance(appearance?: QRCodeAppearance): ResolvedAppearance;
-declare function getStylingOptions(data: string, appearance?: QRCodeAppearance): {
+declare function toLegacyAppearance(style?: QRCodeStyle): QRCodeAppearance;
+declare function normalizeAppearance(appearance?: QRCodeAppearanceInput): ResolvedAppearance;
+declare function getStylingOptions(data: string, appearance?: QRCodeAppearanceInput): {
     width: number;
     height: number;
     data: string;
@@ -87,4 +88,4 @@ declare const DEFAULT_LOGO_MARGIN = 6;
 
 declare function getQRCodeOptionsCatalog(): QRCodeOptionsCatalog;
 
-export { DEFAULT_LOGO_MARGIN, DEFAULT_QR_SIZE, MAX_QR_SIZE, MIN_QR_SIZE, QRCodeAppearance, QRCodeContentType, QRCodeCornerDotShape, QRCodeCornerSquareShape, QRCodeDotsShape, QRCodeGradientMode, QRCodeOptionsCatalog, QRCodeOutputFormat, QRCodePayloadInput, QRCodeWifiAuthType, QR_CODE_CONTENT_TYPES, QR_CODE_CORNER_DOT_SHAPES, QR_CODE_CORNER_SQUARE_SHAPES, QR_CODE_DOTS_SHAPES, QR_CODE_GRADIENT_MODES, QR_CODE_OUTPUT_FORMATS, QR_CODE_WIFI_AUTH_TYPES, buildQRCodePayload, clampSize, getQRCodeOptionsCatalog, getStylingOptions, normalizeAppearance };
+export { DEFAULT_LOGO_MARGIN, DEFAULT_QR_SIZE, MAX_QR_SIZE, MIN_QR_SIZE, QRCodeAppearance, QRCodeAppearanceInput, QRCodeContentType, QRCodeCornerDotShape, QRCodeCornerSquareShape, QRCodeDotsShape, QRCodeGradientMode, QRCodeOptionsCatalog, QRCodeOutputFormat, QRCodePayloadInput, QRCodeStyle, QRCodeWifiAuthType, QR_CODE_CONTENT_TYPES, QR_CODE_CORNER_DOT_SHAPES, QR_CODE_CORNER_SQUARE_SHAPES, QR_CODE_DOTS_SHAPES, QR_CODE_GRADIENT_MODES, QR_CODE_OUTPUT_FORMATS, QR_CODE_WIFI_AUTH_TYPES, buildQRCodePayload, clampSize, getQRCodeOptionsCatalog, getStylingOptions, normalizeAppearance, toLegacyAppearance };

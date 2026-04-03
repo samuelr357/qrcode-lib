@@ -13,8 +13,9 @@ import {
   buildQRCodePayload,
   clampSize,
   getStylingOptions,
-  normalizeAppearance
-} from "./chunk-5KUVBYXA.js";
+  normalizeAppearance,
+  toLegacyAppearance
+} from "./chunk-BGUPRGQW.js";
 
 // src/index.ts
 function getQRCodeOptionsCatalog() {
@@ -50,5 +51,6 @@ export {
   clampSize,
   getQRCodeOptionsCatalog,
   getStylingOptions,
-  normalizeAppearance
+  normalizeAppearance,
+  toLegacyAppearance
 };

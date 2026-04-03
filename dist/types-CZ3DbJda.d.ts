@@ -28,6 +28,28 @@ interface QRCodeAppearance {
         cornerDot?: QRCodeCornerDotShape;
     };
 }
+interface QRCodeStyle {
+    size?: number;
+    logoUrl?: string | null;
+    logoPadding?: number;
+    backgroundColor?: string;
+    foregroundColor?: string;
+    eyeOuterColor?: string;
+    eyeInnerColor?: string;
+    transparentBackground?: boolean;
+    gradient?: {
+        enabled?: boolean;
+        from?: string;
+        to?: string;
+        style?: QRCodeGradientMode;
+    };
+    shape?: {
+        body?: QRCodeDotsShape;
+        eyeOuter?: QRCodeCornerSquareShape;
+        eyeInner?: QRCodeCornerDotShape;
+    };
+}
+type QRCodeAppearanceInput = QRCodeAppearance | QRCodeStyle;
 interface QRCodeUrlInput {
     type: "url";
     url?: string;
@@ -109,20 +131,23 @@ interface QRCodeOptionsCatalog {
 interface GenerateQRCodeNodeInput {
     content: QRCodePayloadInput | string;
     appearance?: QRCodeAppearance;
+    style?: QRCodeStyle;
     format?: QRCodeOutputFormat;
 }
 interface BrowserQRCodeCreateInput {
     element: HTMLElement;
     content: QRCodePayloadInput | string;
     appearance?: QRCodeAppearance;
+    style?: QRCodeStyle;
 }
 interface BrowserQRCodeInstance {
     update: (input: {
         content: QRCodePayloadInput | string;
         appearance?: QRCodeAppearance;
+        style?: QRCodeStyle;
     }) => void;
     download: (fileName?: string, extension?: QRCodeOutputFormat) => void;
     getRawData: (extension?: QRCodeOutputFormat) => Promise<Blob | Buffer | null>;
 }
 
-export type { BrowserQRCodeCreateInput as B, GenerateQRCodeNodeInput as G, QRCodePayloadInput as Q, BrowserQRCodeInstance as a, QRCodeAppearance as b, QRCodeGradientMode as c, QRCodeContentType as d, QRCodeCornerDotShape as e, QRCodeCornerSquareShape as f, QRCodeDotsShape as g, QRCodeOutputFormat as h, QRCodeWifiAuthType as i, QRCodeOptionsCatalog as j, QRCodeBitcoinInput as k, QRCodeEmailInput as l, QRCodeLocationInput as m, QRCodePayPalInput as n, QRCodePhoneInput as o, QRCodeSmsInput as p, QRCodeTextInput as q, QRCodeUrlInput as r, QRCodeVCardInput as s, QRCodeWhatsAppInput as t, QRCodeWifiInput as u, QRCodeZoomInput as v };
+export type { BrowserQRCodeCreateInput as B, GenerateQRCodeNodeInput as G, QRCodePayloadInput as Q, BrowserQRCodeInstance as a, QRCodeAppearanceInput as b, QRCodeGradientMode as c, QRCodeStyle as d, QRCodeAppearance as e, QRCodeContentType as f, QRCodeCornerDotShape as g, QRCodeCornerSquareShape as h, QRCodeDotsShape as i, QRCodeOutputFormat as j, QRCodeWifiAuthType as k, QRCodeOptionsCatalog as l, QRCodeBitcoinInput as m, QRCodeEmailInput as n, QRCodeLocationInput as o, QRCodePayPalInput as p, QRCodePhoneInput as q, QRCodeSmsInput as r, QRCodeTextInput as s, QRCodeUrlInput as t, QRCodeVCardInput as u, QRCodeWhatsAppInput as v, QRCodeWifiInput as w, QRCodeZoomInput as x };

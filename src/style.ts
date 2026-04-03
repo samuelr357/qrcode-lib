@@ -5,7 +5,7 @@ import {
   MIN_QR_SIZE,
   QR_CODE_GRADIENT_MODES
 } from "./constants";
-import type { QRCodeAppearance, QRCodeGradientMode } from "./types";
+import type { QRCodeAppearance, QRCodeAppearanceInput, QRCodeGradientMode, QRCodeStyle } from "./types";
 
 export interface ResolvedAppearance {
   size: number;
@@ -30,6 +30,17 @@ export interface ResolvedAppearance {
     cornerDot: "square" | "dot";
   };
 }
+
+const styleKeys: Array<keyof QRCodeStyle> = [
+  "logoUrl",
+  "logoPadding",
+  "backgroundColor",
+  "foregroundColor",
+  "eyeOuterColor",
+  "eyeInnerColor",
+  "transparentBackground",
+  "shape"
+];
 
 const defaultAppearance: ResolvedAppearance = {
   size: DEFAULT_QR_SIZE,
@@ -68,32 +79,63 @@ export function clampSize(size: number | undefined): number {
   return Math.min(MAX_QR_SIZE, Math.max(MIN_QR_SIZE, Math.round(raw)));
 }
 
-export function normalizeAppearance(appearance: QRCodeAppearance = {}): ResolvedAppearance {
-  const gradientMode = appearance.gradient?.mode ?? defaultAppearance.gradient.mode;
+function isStyleInput(input: QRCodeAppearanceInput): input is QRCodeStyle {
+  return styleKeys.some((key) => key in input);
+}
 
+export function toLegacyAppearance(style: QRCodeStyle = {}): QRCodeAppearance {
   return {
-    size: clampSize(appearance.size),
-    logo: appearance.logo ?? defaultAppearance.logo,
-    logoMargin: Number.isFinite(appearance.logoMargin)
-      ? Number(appearance.logoMargin)
-      : defaultAppearance.logoMargin,
+    size: style.size,
+    logo: style.logoUrl,
+    logoMargin: style.logoPadding,
     colors: {
-      bg: appearance.colors?.bg ?? defaultAppearance.colors.bg,
-      fg: appearance.colors?.fg ?? defaultAppearance.colors.fg,
-      eyeFrame: appearance.colors?.eyeFrame ?? defaultAppearance.colors.eyeFrame,
-      eyeCenter: appearance.colors?.eyeCenter ?? defaultAppearance.colors.eyeCenter,
-      transparent: appearance.colors?.transparent ?? defaultAppearance.colors.transparent
+      bg: style.backgroundColor,
+      fg: style.foregroundColor,
+      eyeFrame: style.eyeOuterColor,
+      eyeCenter: style.eyeInnerColor,
+      transparent: style.transparentBackground
     },
     gradient: {
-      enabled: appearance.gradient?.enabled ?? defaultAppearance.gradient.enabled,
-      start: appearance.gradient?.start ?? appearance.colors?.fg ?? defaultAppearance.gradient.start,
-      end: appearance.gradient?.end ?? defaultAppearance.gradient.end,
+      enabled: style.gradient?.enabled,
+      start: style.gradient?.from,
+      end: style.gradient?.to,
+      mode: style.gradient?.style
+    },
+    shapes: {
+      dots: style.shape?.body,
+      cornerSquare: style.shape?.eyeOuter,
+      cornerDot: style.shape?.eyeInner
+    }
+  };
+}
+
+export function normalizeAppearance(appearance: QRCodeAppearanceInput = {}): ResolvedAppearance {
+  const normalizedInput = isStyleInput(appearance) ? toLegacyAppearance(appearance) : appearance;
+  const gradientMode = normalizedInput.gradient?.mode ?? defaultAppearance.gradient.mode;
+
+  return {
+    size: clampSize(normalizedInput.size),
+    logo: normalizedInput.logo ?? defaultAppearance.logo,
+    logoMargin: Number.isFinite(normalizedInput.logoMargin)
+      ? Number(normalizedInput.logoMargin)
+      : defaultAppearance.logoMargin,
+    colors: {
+      bg: normalizedInput.colors?.bg ?? defaultAppearance.colors.bg,
+      fg: normalizedInput.colors?.fg ?? defaultAppearance.colors.fg,
+      eyeFrame: normalizedInput.colors?.eyeFrame ?? defaultAppearance.colors.eyeFrame,
+      eyeCenter: normalizedInput.colors?.eyeCenter ?? defaultAppearance.colors.eyeCenter,
+      transparent: normalizedInput.colors?.transparent ?? defaultAppearance.colors.transparent
+    },
+    gradient: {
+      enabled: normalizedInput.gradient?.enabled ?? defaultAppearance.gradient.enabled,
+      start: normalizedInput.gradient?.start ?? normalizedInput.colors?.fg ?? defaultAppearance.gradient.start,
+      end: normalizedInput.gradient?.end ?? defaultAppearance.gradient.end,
       mode: QR_CODE_GRADIENT_MODES.includes(gradientMode) ? gradientMode : defaultAppearance.gradient.mode
     },
     shapes: {
-      dots: appearance.shapes?.dots ?? defaultAppearance.shapes.dots,
-      cornerSquare: appearance.shapes?.cornerSquare ?? defaultAppearance.shapes.cornerSquare,
-      cornerDot: appearance.shapes?.cornerDot ?? defaultAppearance.shapes.cornerDot
+      dots: normalizedInput.shapes?.dots ?? defaultAppearance.shapes.dots,
+      cornerSquare: normalizedInput.shapes?.cornerSquare ?? defaultAppearance.shapes.cornerSquare,
+      cornerDot: normalizedInput.shapes?.cornerDot ?? defaultAppearance.shapes.cornerDot
     }
   };
 }
@@ -119,7 +161,7 @@ function getGradientConfig(mode: QRCodeGradientMode, start: string, end: string)
   };
 }
 
-export function getStylingOptions(data: string, appearance: QRCodeAppearance = {}) {
+export function getStylingOptions(data: string, appearance: QRCodeAppearanceInput = {}) {
   const normalized = normalizeAppearance(appearance);
   const dotsOptions = normalized.gradient.enabled
     ? {

@@ -64,7 +64,7 @@ export async function generateQRCodeBuffer(input: GenerateQRCodeNodeInput): Prom
   const { QRCodeStyling, nodeCanvas, JSDOM } = await loadNodeDeps();
 
   const payload = buildQRCodePayload(input.content);
-  const baseOptions = getStylingOptions(payload, input.appearance);
+  const baseOptions = getStylingOptions(payload, input.style ?? input.appearance);
 
   const qrCode = new QRCodeStyling({
     ...baseOptions,
@@ -74,3 +74,5 @@ export async function generateQRCodeBuffer(input: GenerateQRCodeNodeInput): Prom
 
   return toBuffer(await qrCode.getRawData(input.format ?? "png"));
 }
+
+export const generateQrCodeBuffer = generateQRCodeBuffer;
