@@ -41,12 +41,22 @@ export {
   getStylingOptions
 };
 
+export {
+  getARStylingOptions,
+  getColorContrastRatio,
+  validateQRCodeForAR,
+  validateQRCodeReadback
+} from "./ar";
+
 export type {
   BrowserQRCodeCreateInput,
   BrowserQRCodeInstance,
   GenerateQRCodeNodeInput,
   QRCodeAppearance,
   QRCodeAppearanceInput,
+  QRCodeARProfile,
+  QRCodeARQuality,
+  QRCodeARValidationResult,
   QRCodeBitcoinInput,
   QRCodeContentType,
   QRCodeCornerDotShape,
@@ -60,10 +70,13 @@ export type {
   QRCodePayloadInput,
   QRCodePayPalInput,
   QRCodePhoneInput,
+  QRCodeReadbackResult,
   QRCodeSmsInput,
   QRCodeStyle,
   QRCodeTextInput,
   QRCodeUrlInput,
+  QRCodeValidationIssue,
+  QRCodeValidationSeverity,
   QRCodeVCardInput,
   QRCodeWhatsAppInput,
   QRCodeWifiAuthType,
