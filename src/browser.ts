@@ -2,9 +2,11 @@ import type {
   BrowserQRCodeCreateInput,
   BrowserQRCodeInstance,
   QRCodeAppearanceInput,
+  QRCodeARProfile,
   QRCodeOutputFormat,
   QRCodePayloadInput
 } from "./types";
+import { getARStylingOptions } from "./ar";
 import { buildQRCodePayload } from "./payload";
 import { getStylingOptions } from "./style";
 
@@ -34,20 +36,33 @@ function resolvePayload(content: QRCodePayloadInput | string): string {
 
 function resolveOptions(
   content: QRCodePayloadInput | string,
-  options?: { appearance?: QRCodeAppearanceInput; style?: QRCodeAppearanceInput }
+  options?: {
+    appearance?: QRCodeAppearanceInput;
+    style?: QRCodeAppearanceInput;
+    arProfile?: QRCodeARProfile;
+  }
 ) {
+  const payload = resolvePayload(content);
   const styleInput = options?.style ?? options?.appearance;
-  return getStylingOptions(resolvePayload(content), styleInput);
+  return options?.arProfile
+    ? getARStylingOptions(payload, styleInput, options.arProfile)
+    : getStylingOptions(payload, styleInput);
 }
 
 export async function createBrowserQRCode(input: BrowserQRCodeCreateInput): Promise<BrowserQRCodeInstance> {
   const QRCodeStyling = await loadBrowserQRCodeStyling();
-  const qrCode = new QRCodeStyling(resolveOptions(input.content, { appearance: input.appearance, style: input.style }));
+  const qrCode = new QRCodeStyling(
+    resolveOptions(input.content, {
+      appearance: input.appearance,
+      style: input.style,
+      arProfile: input.arProfile
+    })
+  );
   qrCode.append(input.element);
 
   return {
-    update: ({ content, appearance, style }) => {
-      qrCode.update(resolveOptions(content, { appearance, style }));
+    update: ({ content, appearance, style, arProfile }) => {
+      qrCode.update(resolveOptions(content, { appearance, style, arProfile }));
     },
     download: (fileName = "qr-code", extension: QRCodeOutputFormat = "png") => {
       qrCode.download({ name: fileName, extension });
