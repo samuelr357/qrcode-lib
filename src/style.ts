@@ -11,6 +11,8 @@ export interface ResolvedAppearance {
   size: number;
   logo: string | null;
   logoMargin: number;
+  logoSizeRatio: number;
+  quietZonePx: number;
   colors: {
     bg: string;
     fg: string;
@@ -34,6 +36,8 @@ export interface ResolvedAppearance {
 const styleKeys: Array<keyof QRCodeStyle> = [
   "logoUrl",
   "logoPadding",
+  "logoSizeRatio",
+  "quietZonePx",
   "backgroundColor",
   "foregroundColor",
   "eyeOuterColor",
@@ -46,6 +50,8 @@ const defaultAppearance: ResolvedAppearance = {
   size: DEFAULT_QR_SIZE,
   logo: null,
   logoMargin: DEFAULT_LOGO_MARGIN,
+  logoSizeRatio: 0.25,
+  quietZonePx: 0,
   colors: {
     bg: "#FFFFFF",
     fg: "#0B0F1A",
@@ -83,11 +89,23 @@ function isStyleInput(input: QRCodeAppearanceInput): input is QRCodeStyle {
   return styleKeys.some((key) => key in input);
 }
 
+function clampRatio(value: number | undefined, fallback: number): number {
+  if (!Number.isFinite(value)) return fallback;
+  return Math.min(0.6, Math.max(0, Number(value)));
+}
+
+function clampNonNegative(value: number | undefined, fallback: number): number {
+  if (!Number.isFinite(value)) return fallback;
+  return Math.max(0, Math.round(Number(value)));
+}
+
 export function toLegacyAppearance(style: QRCodeStyle = {}): QRCodeAppearance {
   return {
     size: style.size,
     logo: style.logoUrl,
     logoMargin: style.logoPadding,
+    logoSizeRatio: style.logoSizeRatio,
+    quietZonePx: style.quietZonePx,
     colors: {
       bg: style.backgroundColor,
       fg: style.foregroundColor,
@@ -119,6 +137,8 @@ export function normalizeAppearance(appearance: QRCodeAppearanceInput = {}): Res
     logoMargin: Number.isFinite(normalizedInput.logoMargin)
       ? Number(normalizedInput.logoMargin)
       : defaultAppearance.logoMargin,
+    logoSizeRatio: clampRatio(normalizedInput.logoSizeRatio, defaultAppearance.logoSizeRatio),
+    quietZonePx: clampNonNegative(normalizedInput.quietZonePx, defaultAppearance.quietZonePx),
     colors: {
       bg: normalizedInput.colors?.bg ?? defaultAppearance.colors.bg,
       fg: normalizedInput.colors?.fg ?? defaultAppearance.colors.fg,
@@ -147,18 +167,10 @@ function getGradientConfig(mode: QRCodeGradientMode, start: string, end: string)
   ];
 
   if (mode === "radial-center") {
-    return {
-      type: "radial" as const,
-      rotation: 0,
-      colorStops
-    };
+    return { type: "radial" as const, rotation: 0, colorStops };
   }
 
-  return {
-    type: "linear" as const,
-    rotation: rotationMap[mode],
-    colorStops
-  };
+  return { type: "linear" as const, rotation: rotationMap[mode], colorStops };
 }
 
 export function getStylingOptions(data: string, appearance: QRCodeAppearanceInput = {}) {
@@ -179,6 +191,7 @@ export function getStylingOptions(data: string, appearance: QRCodeAppearanceInpu
     width: normalized.size,
     height: normalized.size,
     data,
+    margin: normalized.quietZonePx,
     image: normalized.logo || undefined,
     dotsOptions,
     cornersSquareOptions: {
@@ -194,6 +207,7 @@ export function getStylingOptions(data: string, appearance: QRCodeAppearanceInpu
     },
     imageOptions: {
       margin: normalized.logoMargin,
+      imageSize: normalized.logoSizeRatio,
       crossOrigin: "anonymous" as const
     }
   };
